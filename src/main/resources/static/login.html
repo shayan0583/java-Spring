@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ورود به مینی LMS - داتین</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background: #f0f4f8; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .login-card h2 { color: #003366; margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        .input-group label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        .input-group input:focus { border-color: #007bff; outline: none; }
+        .btn-submit { background: #007bff; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        .btn-submit:hover { background: #0056b3; }
+        .error-msg { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; display: none; }
+        .footer-text { margin-top: 15px; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>ورود به مینی LMS</h2>
+
+    <!-- نمایش خطا در صورت اشتباه بودن رمز یا نام کاربری -->
+    <div id="errorBox" class="error-msg">نام کاربری یا رمز عبور اشتباه است!</div>
+
+    <!-- فرم لاگین استاندارد اسپرینگ سکیوریتی (به صورت POST به /login) -->
+    <form action="/login" method="POST">
+        <div class="input-group">
+            <label for="username">نام کاربری:</label>
+            <input type="text" id="username" name="username" required autocomplete="username">
+        </div>
+        <div class="input-group">
+            <label for="password">رمز عبور:</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-submit">ورود به حساب</button>
+    </form>
+
+    <div class="footer-text">پروژه آموزشی داتین - مینی LMS</div>
+</div>
+
+<script>
+    // اگر در آدرس URL پارامتر error وجود داشت، باکس خطا را نمایش بده
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('error')) {
+        document.getElementById('errorBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

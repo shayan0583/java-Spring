@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>سیستم آموزشی مینی LMS - داتین</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; direction: rtl; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #333; }
+        button { background: #007bff; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        button:hover { background: #0056b3; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        .section { margin-top: 25px; padding: 20px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; }
+        ul { padding: 0; list-style: none; }
+        li { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border: 1px solid #eee; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .nav-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .hidden { display: none !important; }
+        .badge-enrolled { background: #e2e3e5; color: #383d41; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        input, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-left: 5px; font-family: Tahoma, sans-serif; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-header">
+        <div>
+            <h1 style="margin: 0;">مینی LMS داتین</h1>
+            <p id="userInfo" style="margin: 5px 0 0 0; color: #666; font-size: 14px;"></p>
+        </div>
+        <form action="/logout" method="POST" style="margin: 0;">
+            <button type="submit" class="btn-danger">خروج از سیستم</button>
+        </form>
+    </div>
+
+    <!-- بخش رودمپ‌های آموزشی (برای همه کاربران لاگین‌کرده) -->
+    <div class="section">
+        <h2>رودمپ‌های آموزشی</h2>
+        <ul id="roadmapList"></ul>
+    </div>
+
+    <!-- بخش پنل ادمین (فقط برای نقش ADMIN) -->
+    <div class="section hidden" id="adminSection">
+        <h2>پنل مدیریت ادمین</h2>
+
+        <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 20px;">
+            <h3 id="formTitle" style="margin-top: 0;">افزودن رودمپ جدید</h3>
+            <input type="hidden" id="editRoadmapId">
+            <input type="text" id="newTitle" placeholder="عنوان رودمپ" style="width: 25%;">
+            <input type="text" id="newDesc" placeholder="توضیحات دوره" style="width: 40%;">
+            <button onclick="saveRoadmap()" class="btn-success" id="saveBtn">ایجاد رودمپ</button>
+            <button onclick="resetForm()" class="btn-warning" id="cancelBtn" style="display:none;">لغو ویرایش</button>
+        </div>
+
+        <h3>لیست کل ثبت‌نام‌های دانشجویان</h3>
+        <button onclick="loadAllEnrollments()">بارگذاری ثبت‌نام‌ها</button>
+        <ul id="enrollmentList" style="margin-top: 10px;">
+            <li style="justify-content: center; color: #777;">هنوز لیستی بارگذاری نشده است. دکمه بالا را بزنید.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    let currentUserRole = '';
+    let myEnrolledRoadmapIds = [];
+
+    window.onload = function() {
+        // ۱. گرفتن اطلاعات کاربر جاری
+        fetch('/api/v1/auth/me')
+            .then(res => res.json())
+            .then(user => {
+                currentUserRole = user.role;
+                document.getElementById('userInfo').innerText = `کاربر: ${user.username} (${user.role === 'ADMIN' ? 'مدیر سیستم (Admin)' : 'دانشجو (Student)'})`;
+
+                if (user.role === 'ADMIN') {
+                    document.getElementById('adminSection').classList.remove('hidden');
+                    loadAllEnrollments(); // بارگذاری خودکار ثبت‌نام‌ها برای ادمین
+                    loadRoadmaps();
+                } else if (user.role === 'STUDENT') {
+                    // اول ثبت‌نام‌های خودش را می‌گیرد تا دکمه‌ها هوشمند شوند، بعد رودمپ‌ها را لود می‌کند
+                    loadMyEnrollments();
+                }
+            })
+            .catch(() => {
+                window.location.href = '/login.html';
+            });
+    };
+
+    // گرفتن ثبت‌نام‌های خود دانشجو
+    function loadMyEnrollments() {
+        fetch('/api/v1/enrollments/my')
+            .then(res => res.ok ? res.json() : [])
+            .then(enrollments => {
+                // استخراج شناسه‌های رودمپ‌هایی که این دانشجو در آن‌ها ثبت‌نام کرده است
+                myEnrolledRoadmapIds = enrollments.map(e => e.roadmapId);
+                loadRoadmaps();
+            })
+            .catch(() => {
+                myEnrolledRoadmapIds = [];
+                loadRoadmaps();
+            });
+    }
+
+    // بارگذاری لیست رودمپ‌ها
+    function loadRoadmaps() {
+        fetch('/api/v1/roadmaps')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('roadmapList');
+                list.innerHTML = '';
+                if (data.length === 0) {
+                    list.innerHTML = '<li>هیچ رودمپی ثبت نشده است.</li>';
+                    return;
+                }
+
+                data.forEach(r => {
+                    let li = document.createElement('li');
+                    let actionHtml = '';
+
+                    if (currentUserRole === 'ADMIN') {
+                        actionHtml = `
+                            <div>
+                                <button class="btn-warning" onclick="editRoadmap(${r.id}, '${r.title}', '${r.description}')">ویرایش</button>
+                                <button class="btn-danger" onclick="deleteRoadmap(${r.id})">حذف</button>
+                            </div>
+                        `;
+                    } else {
+                        // بررسی اینکه آیا دانشجو قبلاً ثبت‌نام کرده است یا خیر
+                        if (myEnrolledRoadmapIds.includes(r.id)) {
+                            actionHtml = `<span class="badge-enrolled">شما در این دوره هستید ✓</span>`;
+                        } else {
+                            actionHtml = `<button class="btn-success" onclick="enrollRoadmap(${r.id})">ثبت‌نام در دوره</button>`;
+                        }
+                    }
+
+                    li.innerHTML = `
+                        <div><strong>${r.title}</strong><br><span style="color: #666; font-size: 13px;">${r.description}</span></div>
+                        ${actionHtml}
+                    `;
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => alert("خطا در بارگذاری رودمپ‌ها"));
+    }
+
+    // ثبت‌نام دانشجو در دوره
+    function enrollRoadmap(roadmapId) {
+        fetch(`/api/v1/enrollments/${roadmapId}`, { method: 'POST' })
+            .then(async res => {
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || "خطا در ثبت‌نام");
+                }
+                return res.json();
+            })
+            .then(() => {
+                alert("ثبت‌نام با موفقیت انجام شد!");
+                location.reload(); // رفرش صفحه برای به‌روز شدن وضعیت دکمه‌ها
+            })
+            .catch(err => alert(err.message)); // نمایش دقیق پیام مثل «این دانشجو قبلاً در این رودمپ ثبت‌نام کرده است!»
+    }
+
+    // ایجاد یا ویرایش رودمپ (ادمین)
+    function saveRoadmap() {
+        const id = document.getElementById('editRoadmapId').value;
+        const title = document.getElementById('newTitle').value;
+        const description = document.getElementById('newDesc').value;
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/v1/roadmaps/${id}` : '/api/v1/roadmaps';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("خطا در ذخیره رودمپ");
+                return res.json();
+            })
+            .then(() => {
+                alert(id ? "رودمپ با موفقیت ویرایش شد!" : "رودمپ با موفقیت ایجاد شد!");
+                resetForm();
+                loadRoadmaps();
+            })
+            .catch(err => alert(err.message));
+    }
+
+    function editRoadmap(id, title, desc) {
+        document.getElementById('editRoadmapId').value = id;
+        document.getElementById('newTitle').value = title;
+        document.getElementById('newDesc').value = desc;
+        document.getElementById('formTitle').innerText = 'ویرایش رودمپ';
+        document.getElementById('saveBtn').innerText = 'ذخیره تغییرات';
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+    }
+
+    function resetForm() {
+        document.getElementById('editRoadmapId').value = '';
+        document.getElementById('newTitle').value = '';
+        document.getElementById('newDesc').value = '';
+        document.getElementById('formTitle').innerText = 'افزودن رودمپ جدید';
+        document.getElementById('saveBtn').innerText = 'ایجاد رودمپ';
+        document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    // حذف رودمپ (ادمین)
+    function deleteRoadmap(id) {
+        if (!confirm("آیا از حذف این رودمپ مطمئن هستید؟")) return;
+        fetch(`/api/v1/roadmaps/${id}`, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) throw new Error("خطا در حذف رودمپ");
+                loadRoadmaps();
+            })
+            .catch(err => alert(err.message));
+    }
+
+    // مشاهده کل ثبت‌نام‌ها (ادمین) همراه با مدیریت حالت خالی بودن
+    function loadAllEnrollments() {
+        fetch('/api/v1/enrollments/all')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('enrollmentList');
+                list.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<li style="justify-content: center; color: #888; background: #fff;">هیچ ثبت‌نامی در سیستم وجود ندارد.</li>';
+                    return;
+                }
+
+                data.forEach(e => {
+                    let li = document.createElement('li');
+                    li.innerHTML = `<span>دانشجو: <strong>${e.username}</strong> | دوره: <strong>${e.roadmapTitle || 'رودمپ شماره ' + e.roadmapId}</strong></span>`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => {
+                const list = document.getElementById('enrollmentList');
+                list.innerHTML = '<li style="justify-content: center; color: #dc3545; background: #fff;">خطا در بارگذاری لیست ثبت‌نام‌ها.</li>';
+            });
+    }
+</script>
+
+</body>
+</html>
