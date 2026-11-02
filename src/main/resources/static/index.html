@@ -2,248 +2,944 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سیستم آموزشی مینی LMS - داتین</title>
+
     <style>
-        body { font-family: Tahoma, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; direction: rtl; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Tahoma, sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+        }
+
         h1, h2, h3 { color: #333; }
-        button { background: #007bff; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: 0.2s; }
-        button:hover { background: #0056b3; }
-        .btn-danger { background: #dc3545; }
-        .btn-danger:hover { background: #c82333; }
-        .btn-success { background: #28a745; }
-        .btn-success:hover { background: #218838; }
-        .btn-warning { background: #ffc107; color: #333; }
-        .btn-warning:hover { background: #e0a800; }
-        .section { margin-top: 25px; padding: 20px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; }
-        ul { padding: 0; list-style: none; }
-        li { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border: 1px solid #eee; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .nav-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: 0;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 14px;
+        }
+
+        button:hover:not(:disabled) { opacity: .9; }
+        button:disabled { cursor: not-allowed; opacity: .7; }
+
+        input, textarea {
+            font: inherit;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
         .hidden { display: none !important; }
-        .badge-enrolled { background: #e2e3e5; color: #383d41; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; }
-        input, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-left: 5px; font-family: Tahoma, sans-serif; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; }
+        .btn-secondary { background: #6c757d; }
+
+        .user-bar {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-box {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .admin-form-box { background: #fff3cd; }
+        .enrollments-box { background: #e2f0d9; }
+
+        .form-row { margin-bottom: 10px; }
+        .form-row input, .form-row textarea {
+            display: block;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        ul { list-style: none; padding: 0; }
+
+        .roadmap-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .roadmap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .roadmap-details { flex: 1; }
+        .roadmap-description {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .roadmap-actions, .topic-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-enrolled {
+            background: #e2f0d9;
+            color: #385723;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .topics-toggle {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            background: #17a2b8;
+        }
+
+        .topics-panel {
+            background: #fdfdfd;
+            border: 1px dashed #ccc;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .topic-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 1px solid #eee;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .topic-meta { color: #666; font-size: 12px; }
+
+        .topic-form {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f1f3f5;
+            border-radius: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic-form input { flex: 1; min-width: 120px; }
+
+        .table-wrapper { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        th { background: #d4edda; }
+
+        @media (max-width: 650px) {
+            .roadmap-header, .topic-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
     </style>
 </head>
+
 <body>
-
 <div class="container">
-    <div class="nav-header">
-        <div>
-            <h1 style="margin: 0;">مینی LMS داتین</h1>
-            <p id="userInfo" style="margin: 5px 0 0 0; color: #666; font-size: 14px;"></p>
-        </div>
-        <form action="/logout" method="POST" style="margin: 0;">
-            <button type="submit" class="btn-danger">خروج از سیستم</button>
+    <h1>سامانه مینی LMS (داتین)</h1>
+
+    <div class="user-bar">
+        <span id="current-user-display">در حال بارگذاری اطلاعات کاربر...</span>
+        <button type="button" class="btn-danger" onclick="logout()">خروج از سیستم</button>
+    </div>
+
+    <div id="message-container" role="status"></div>
+
+    <!-- فقط ادمین -->
+    <section id="admin-roadmap-section" class="section-box admin-form-box hidden">
+        <h3>افزودن یا ویرایش رودمپ</h3>
+
+        <form id="roadmap-form">
+            <input type="hidden" id="roadmap-id">
+
+            <div class="form-row">
+                <label for="roadmap-title">عنوان دوره:</label>
+                <input id="roadmap-title" type="text" required>
+            </div>
+
+            <div class="form-row">
+                <label for="roadmap-description">توضیحات:</label>
+                <textarea id="roadmap-description" rows="3"></textarea>
+            </div>
+
+            <button id="roadmap-submit-btn" type="submit" class="btn-success">
+                ذخیره رودمپ
+            </button>
+            <button id="roadmap-cancel-btn" type="button" class="hidden">
+                انصراف
+            </button>
         </form>
-    </div>
+    </section>
 
-    <!-- بخش رودمپ‌های آموزشی (برای همه کاربران لاگین‌کرده) -->
-    <div class="section">
-        <h2>رودمپ‌های آموزشی</h2>
-        <ul id="roadmapList"></ul>
-    </div>
+    <!-- فقط ادمین -->
+    <section id="admin-enrollments-section"
+             class="section-box enrollments-box hidden">
+        <h3>گزارش ثبت‌نام‌های سیستم</h3>
+        <button type="button" class="btn-success"
+                onclick="loadAllEnrollments()">
+            به‌روزرسانی لیست ثبت‌نام‌ها
+        </button>
+        <div id="enrollments-list-container"></div>
+    </section>
 
-    <!-- بخش پنل ادمین (فقط برای نقش ADMIN) -->
-    <div class="section hidden" id="adminSection">
-        <h2>پنل مدیریت ادمین</h2>
-
-        <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 20px;">
-            <h3 id="formTitle" style="margin-top: 0;">افزودن رودمپ جدید</h3>
-            <input type="hidden" id="editRoadmapId">
-            <input type="text" id="newTitle" placeholder="عنوان رودمپ" style="width: 25%;">
-            <input type="text" id="newDesc" placeholder="توضیحات دوره" style="width: 40%;">
-            <button onclick="saveRoadmap()" class="btn-success" id="saveBtn">ایجاد رودمپ</button>
-            <button onclick="resetForm()" class="btn-warning" id="cancelBtn" style="display:none;">لغو ویرایش</button>
-        </div>
-
-        <h3>لیست کل ثبت‌نام‌های دانشجویان</h3>
-        <button onclick="loadAllEnrollments()">بارگذاری ثبت‌نام‌ها</button>
-        <ul id="enrollmentList" style="margin-top: 10px;">
-            <li style="justify-content: center; color: #777;">هنوز لیستی بارگذاری نشده است. دکمه بالا را بزنید.</li>
-        </ul>
-    </div>
+    <h2>لیست دوره‌های آموزشی (رودمپ‌ها)</h2>
+    <ul id="roadmap-list"></ul>
 </div>
 
 <script>
     let currentUserRole = '';
-    let myEnrolledRoadmapIds = [];
+    let currentUsername = '';
+    let myEnrolledRoadmapIds = new Set();
+    let openRoadmapId = null;
+    let messageTimer = null;
 
-    window.onload = function() {
-        // ۱. گرفتن اطلاعات کاربر جاری
-        fetch('/api/v1/auth/me')
-            .then(res => res.json())
-            .then(user => {
-                currentUserRole = user.role;
-                document.getElementById('userInfo').innerText = `کاربر: ${user.username} (${user.role === 'ADMIN' ? 'مدیر سیستم (Admin)' : 'دانشجو (Student)'})`;
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('roadmap-form')
+            .addEventListener('submit', handleRoadmapSubmit);
 
-                if (user.role === 'ADMIN') {
-                    document.getElementById('adminSection').classList.remove('hidden');
-                    loadAllEnrollments(); // بارگذاری خودکار ثبت‌نام‌ها برای ادمین
-                    loadRoadmaps();
-                } else if (user.role === 'STUDENT') {
-                    // اول ثبت‌نام‌های خودش را می‌گیرد تا دکمه‌ها هوشمند شوند، بعد رودمپ‌ها را لود می‌کند
-                    loadMyEnrollments();
-                }
-            })
-            .catch(() => {
-                window.location.href = '/login.html';
-            });
-    };
+        document.getElementById('roadmap-cancel-btn')
+            .addEventListener('click', resetRoadmapForm);
 
-    // گرفتن ثبت‌نام‌های خود دانشجو
-    function loadMyEnrollments() {
-        fetch('/api/v1/enrollments/my')
-            .then(res => res.ok ? res.json() : [])
-            .then(enrollments => {
-                // استخراج شناسه‌های رودمپ‌هایی که این دانشجو در آن‌ها ثبت‌نام کرده است
-                myEnrolledRoadmapIds = enrollments.map(e => e.roadmapId);
-                loadRoadmaps();
-            })
-            .catch(() => {
-                myEnrolledRoadmapIds = [];
-                loadRoadmaps();
-            });
+        await loadRoadmaps();
+    });
+
+    function makeButton(text, className, onClick) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = className;
+        button.textContent = text;
+        button.addEventListener('click', onClick);
+        return button;
     }
 
-    // بارگذاری لیست رودمپ‌ها
-    function loadRoadmaps() {
-        fetch('/api/v1/roadmaps')
-            .then(res => res.json())
-            .then(data => {
-                const list = document.getElementById('roadmapList');
-                list.innerHTML = '';
-                if (data.length === 0) {
-                    list.innerHTML = '<li>هیچ رودمپی ثبت نشده است.</li>';
-                    return;
+    function showAlert(message, type = 'error') {
+        const container = document.getElementById('message-container');
+        const alertBox = document.createElement('div');
+
+        alertBox.className = `alert alert-${type}`;
+        alertBox.textContent = message;
+
+        container.replaceChildren(alertBox);
+
+        if (messageTimer) clearTimeout(messageTimer);
+        messageTimer = setTimeout(() => container.replaceChildren(), 5000);
+    }
+
+    async function readError(response, fallback) {
+        try {
+            const data = await response.json();
+            return data.message || data.error || fallback;
+        } catch {
+            return `${fallback} (HTTP ${response.status})`;
+        }
+    }
+
+    async function fetchMyInfo() {
+        currentUserRole = '';
+        currentUsername = '';
+        myEnrolledRoadmapIds = new Set();
+
+        document.getElementById('admin-roadmap-section')
+            .classList.add('hidden');
+        document.getElementById('admin-enrollments-section')
+            .classList.add('hidden');
+
+        const response = await fetch('/api/v1/auth/me');
+
+        if (!response.ok) {
+            throw new Error(await readError(
+                response,
+                'اطلاعات کاربر دریافت نشد'
+            ));
+        }
+
+        const user = await response.json();
+        currentUserRole = user.role;
+        currentUsername = user.username;
+
+        document.getElementById('current-user-display').textContent =
+            `کاربر: ${currentUsername} (` +
+            `${currentUserRole === 'ADMIN' ? 'مدیر' : 'دانشجو'})`;
+
+        if (currentUserRole === 'ADMIN') {
+            document.getElementById('admin-roadmap-section')
+                .classList.remove('hidden');
+            document.getElementById('admin-enrollments-section')
+                .classList.remove('hidden');
+
+            loadAllEnrollments();
+        }
+
+        if (currentUserRole === 'STUDENT') {
+            const enrollmentsResponse =
+                await fetch('/api/v1/enrollments/my');
+
+            if (!enrollmentsResponse.ok) {
+                throw new Error(await readError(
+                    enrollmentsResponse,
+                    'ثبت‌نام‌های دانشجو دریافت نشد'
+                ));
+            }
+
+            const enrollments = await enrollmentsResponse.json();
+            myEnrolledRoadmapIds = new Set(
+                enrollments.map(item => Number(item.roadmapId))
+            );
+        }
+    }
+
+    async function loadRoadmaps() {
+        const list = document.getElementById('roadmap-list');
+        list.replaceChildren();
+
+        const loadingItem = document.createElement('li');
+        loadingItem.textContent = 'در حال بارگذاری دوره‌ها...';
+        list.appendChild(loadingItem);
+
+        try {
+            await fetchMyInfo();
+
+            const response = await fetch('/api/v1/roadmaps');
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'لیست دوره‌ها دریافت نشد'
+                ));
+            }
+
+            const roadmaps = await response.json();
+            list.replaceChildren();
+
+            if (roadmaps.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.textContent = 'هیچ دوره‌ای ثبت نشده است.';
+                list.appendChild(emptyItem);
+                return;
+            }
+
+            for (const roadmap of roadmaps) {
+                const roadmapId = Number(roadmap.id);
+
+                const item = document.createElement('li');
+                item.className = 'roadmap-item';
+
+                const header = document.createElement('div');
+                header.className = 'roadmap-header';
+
+                const details = document.createElement('div');
+                details.className = 'roadmap-details';
+
+                const title = document.createElement('strong');
+                title.textContent = roadmap.title;
+
+                const description = document.createElement('div');
+                description.className = 'roadmap-description';
+                description.textContent = roadmap.description || '';
+
+                details.append(title, description);
+
+                const actions = document.createElement('div');
+                actions.className = 'roadmap-actions';
+
+                if (currentUserRole === 'ADMIN') {
+                    actions.append(
+                        makeButton(
+                            'ویرایش',
+                            'btn-warning',
+                            () => editRoadmap(roadmap)
+                        ),
+                        makeButton(
+                            'حذف',
+                            'btn-danger',
+                            () => deleteRoadmap(roadmapId)
+                        )
+                    );
                 }
 
-                data.forEach(r => {
-                    let li = document.createElement('li');
-                    let actionHtml = '';
-
-                    if (currentUserRole === 'ADMIN') {
-                        actionHtml = `
-                            <div>
-                                <button class="btn-warning" onclick="editRoadmap(${r.id}, '${r.title}', '${r.description}')">ویرایش</button>
-                                <button class="btn-danger" onclick="deleteRoadmap(${r.id})">حذف</button>
-                            </div>
-                        `;
+                if (currentUserRole === 'STUDENT') {
+                    if (myEnrolledRoadmapIds.has(roadmapId)) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge-enrolled';
+                        badge.textContent = 'شما در این دوره هستید ✓';
+                        actions.appendChild(badge);
                     } else {
-                        // بررسی اینکه آیا دانشجو قبلاً ثبت‌نام کرده است یا خیر
-                        if (myEnrolledRoadmapIds.includes(r.id)) {
-                            actionHtml = `<span class="badge-enrolled">شما در این دوره هستید ✓</span>`;
-                        } else {
-                            actionHtml = `<button class="btn-success" onclick="enrollRoadmap(${r.id})">ثبت‌نام در دوره</button>`;
-                        }
+                        actions.appendChild(makeButton(
+                            'ثبت‌نام در دوره',
+                            'btn-success',
+                            () => enrollRoadmap(roadmapId)
+                        ));
                     }
-
-                    li.innerHTML = `
-                        <div><strong>${r.title}</strong><br><span style="color: #666; font-size: 13px;">${r.description}</span></div>
-                        ${actionHtml}
-                    `;
-                    list.appendChild(li);
-                });
-            })
-            .catch(err => alert("خطا در بارگذاری رودمپ‌ها"));
-    }
-
-    // ثبت‌نام دانشجو در دوره
-    function enrollRoadmap(roadmapId) {
-        fetch(`/api/v1/enrollments/${roadmapId}`, { method: 'POST' })
-            .then(async res => {
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(errorText || "خطا در ثبت‌نام");
-                }
-                return res.json();
-            })
-            .then(() => {
-                alert("ثبت‌نام با موفقیت انجام شد!");
-                location.reload(); // رفرش صفحه برای به‌روز شدن وضعیت دکمه‌ها
-            })
-            .catch(err => alert(err.message)); // نمایش دقیق پیام مثل «این دانشجو قبلاً در این رودمپ ثبت‌نام کرده است!»
-    }
-
-    // ایجاد یا ویرایش رودمپ (ادمین)
-    function saveRoadmap() {
-        const id = document.getElementById('editRoadmapId').value;
-        const title = document.getElementById('newTitle').value;
-        const description = document.getElementById('newDesc').value;
-
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `/api/v1/roadmaps/${id}` : '/api/v1/roadmaps';
-
-        fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("خطا در ذخیره رودمپ");
-                return res.json();
-            })
-            .then(() => {
-                alert(id ? "رودمپ با موفقیت ویرایش شد!" : "رودمپ با موفقیت ایجاد شد!");
-                resetForm();
-                loadRoadmaps();
-            })
-            .catch(err => alert(err.message));
-    }
-
-    function editRoadmap(id, title, desc) {
-        document.getElementById('editRoadmapId').value = id;
-        document.getElementById('newTitle').value = title;
-        document.getElementById('newDesc').value = desc;
-        document.getElementById('formTitle').innerText = 'ویرایش رودمپ';
-        document.getElementById('saveBtn').innerText = 'ذخیره تغییرات';
-        document.getElementById('cancelBtn').style.display = 'inline-block';
-    }
-
-    function resetForm() {
-        document.getElementById('editRoadmapId').value = '';
-        document.getElementById('newTitle').value = '';
-        document.getElementById('newDesc').value = '';
-        document.getElementById('formTitle').innerText = 'افزودن رودمپ جدید';
-        document.getElementById('saveBtn').innerText = 'ایجاد رودمپ';
-        document.getElementById('cancelBtn').style.display = 'none';
-    }
-
-    // حذف رودمپ (ادمین)
-    function deleteRoadmap(id) {
-        if (!confirm("آیا از حذف این رودمپ مطمئن هستید؟")) return;
-        fetch(`/api/v1/roadmaps/${id}`, { method: 'DELETE' })
-            .then(res => {
-                if (!res.ok) throw new Error("خطا در حذف رودمپ");
-                loadRoadmaps();
-            })
-            .catch(err => alert(err.message));
-    }
-
-    // مشاهده کل ثبت‌نام‌ها (ادمین) همراه با مدیریت حالت خالی بودن
-    function loadAllEnrollments() {
-        fetch('/api/v1/enrollments/all')
-            .then(res => res.json())
-            .then(data => {
-                const list = document.getElementById('enrollmentList');
-                list.innerHTML = '';
-
-                if (!data || data.length === 0) {
-                    list.innerHTML = '<li style="justify-content: center; color: #888; background: #fff;">هیچ ثبت‌نامی در سیستم وجود ندارد.</li>';
-                    return;
                 }
 
-                data.forEach(e => {
-                    let li = document.createElement('li');
-                    li.innerHTML = `<span>دانشجو: <strong>${e.username}</strong> | دوره: <strong>${e.roadmapTitle || 'رودمپ شماره ' + e.roadmapId}</strong></span>`;
-                    list.appendChild(li);
-                });
-            })
-            .catch(err => {
-                const list = document.getElementById('enrollmentList');
-                list.innerHTML = '<li style="justify-content: center; color: #dc3545; background: #fff;">خطا در بارگذاری لیست ثبت‌نام‌ها.</li>';
+                header.append(details, actions);
+
+                const panel = document.createElement('div');
+                panel.className = 'topics-panel hidden';
+
+                const panelTitle = document.createElement('h3');
+                panelTitle.textContent = `تاپیک‌های «${roadmap.title}»`;
+
+                const topicList = document.createElement('ul');
+                topicList.className = 'topic-list';
+
+                panel.append(panelTitle, topicList);
+
+                if (currentUserRole === 'ADMIN') {
+                    panel.appendChild(
+                        createTopicForm(roadmapId, topicList)
+                    );
+                }
+
+                // دیدن لیست تاپیک‌ها برای دانشجوی ثبت‌نام‌نکرده هم آزاد است.
+                const toggleButton = makeButton(
+                    'مشاهده تاپیک‌ها',
+                    'topics-toggle',
+                    () => toggleTopics(
+                        roadmapId, panel, topicList, toggleButton
+                    )
+                );
+
+                toggleButton.setAttribute('aria-expanded', 'false');
+
+                item.append(header, toggleButton, panel);
+                list.appendChild(item);
+
+                if (openRoadmapId === roadmapId) {
+                    panel.classList.remove('hidden');
+                    toggleButton.textContent = 'بستن تاپیک‌ها';
+                    toggleButton.setAttribute('aria-expanded', 'true');
+                    loadTopics(roadmapId, topicList);
+                }
+            }
+        } catch (error) {
+            list.replaceChildren();
+            showAlert(error.message);
+        }
+    }
+
+    async function enrollRoadmap(roadmapId) {
+        try {
+            // مسیر واقعی EnrollmentController:
+            // @RequestMapping("/api/v1/enrollments")
+            // @PostMapping("/{roadmapId}")
+            const response = await fetch(
+                `/api/v1/enrollments/${roadmapId}`,
+                { method: 'POST' }
+            );
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'خطا در ثبت‌نام دوره'
+                ));
+            }
+
+            showAlert('با موفقیت در دوره ثبت‌نام شدید!', 'success');
+            await loadRoadmaps();
+        } catch (error) {
+            showAlert(error.message);
+        }
+    }
+
+    async function loadAllEnrollments() {
+        const container =
+            document.getElementById('enrollments-list-container');
+
+        container.textContent = 'در حال بارگذاری ثبت‌نام‌ها...';
+
+        try {
+            const response = await fetch('/api/v1/enrollments/all');
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'لیست ثبت‌نام‌ها دریافت نشد'
+                ));
+            }
+
+            const enrollments = await response.json();
+            container.replaceChildren();
+
+            if (enrollments.length === 0) {
+                container.textContent =
+                    'هیچ ثبت‌نامی در سیستم ثبت نشده است.';
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-wrapper';
+
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            [
+                'شناسه',
+                'نام کاربری دانشجو',
+                'دوره',
+                'تاریخ ثبت‌نام'
+            ].forEach(label => {
+                const th = document.createElement('th');
+                th.textContent = label;
+                headerRow.appendChild(th);
             });
+
+            thead.appendChild(headerRow);
+
+            const tbody = document.createElement('tbody');
+
+            for (const enrollment of enrollments) {
+                const row = document.createElement('tr');
+
+                const dateText = enrollment.enrolledAt
+                    ? new Date(enrollment.enrolledAt)
+                        .toLocaleString('fa-IR')
+                    : '-';
+
+                const values = [
+                    enrollment.id,
+                    enrollment.username,
+                    enrollment.roadmapTitle ||
+                    enrollment.roadmapId,
+                    dateText
+                ];
+
+                for (const value of values) {
+                    const cell = document.createElement('td');
+                    cell.textContent = value ?? '-';
+                    row.appendChild(cell);
+                }
+
+                tbody.appendChild(row);
+            }
+
+            table.append(thead, tbody);
+            wrapper.appendChild(table);
+            container.appendChild(wrapper);
+        } catch (error) {
+            container.replaceChildren();
+            showAlert(error.message);
+        }
+    }
+
+    function editRoadmap(roadmap) {
+        document.getElementById('roadmap-id').value = roadmap.id;
+        document.getElementById('roadmap-title').value =
+            roadmap.title || '';
+        document.getElementById('roadmap-description').value =
+            roadmap.description || '';
+
+        document.getElementById('roadmap-submit-btn').textContent =
+            'ذخیره تغییرات';
+        document.getElementById('roadmap-cancel-btn')
+            .classList.remove('hidden');
+
+        document.getElementById('roadmap-title').focus();
+    }
+
+    function resetRoadmapForm() {
+        document.getElementById('roadmap-form').reset();
+        document.getElementById('roadmap-id').value = '';
+        document.getElementById('roadmap-submit-btn').textContent =
+            'ذخیره رودمپ';
+        document.getElementById('roadmap-cancel-btn')
+            .classList.add('hidden');
+    }
+
+    async function handleRoadmapSubmit(event) {
+        event.preventDefault();
+
+        const id = document.getElementById('roadmap-id').value;
+        const title = document.getElementById('roadmap-title')
+            .value.trim();
+        const description =
+            document.getElementById('roadmap-description')
+                .value.trim();
+
+        try {
+            const response = await fetch(
+                id ? `/api/v1/roadmaps/${id}` : '/api/v1/roadmaps',
+                {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'ذخیره رودمپ انجام نشد'
+                ));
+            }
+
+            resetRoadmapForm();
+            showAlert('رودمپ با موفقیت ذخیره شد.', 'success');
+            await loadRoadmaps();
+        } catch (error) {
+            showAlert(error.message);
+        }
+    }
+
+    async function deleteRoadmap(roadmapId) {
+        if (!confirm('این دوره حذف شود؟')) return;
+
+        try {
+            const response = await fetch(
+                `/api/v1/roadmaps/${roadmapId}`,
+                { method: 'DELETE' }
+            );
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'حذف رودمپ انجام نشد'
+                ));
+            }
+
+            if (openRoadmapId === roadmapId) openRoadmapId = null;
+
+            showAlert('رودمپ حذف شد.', 'success');
+            await loadRoadmaps();
+
+            if (currentUserRole === 'ADMIN') {
+                await loadAllEnrollments();
+            }
+        } catch (error) {
+            showAlert(error.message);
+        }
+    }
+
+    function toggleTopics(
+        roadmapId, panel, topicList, toggleButton
+    ) {
+        const opening = panel.classList.contains('hidden');
+
+        panel.classList.toggle('hidden', !opening);
+        toggleButton.textContent =
+            opening ? 'بستن تاپیک‌ها' : 'مشاهده تاپیک‌ها';
+        toggleButton.setAttribute(
+            'aria-expanded',
+            String(opening)
+        );
+
+        openRoadmapId = opening ? roadmapId : null;
+
+        if (opening) loadTopics(roadmapId, topicList);
+    }
+
+    async function loadTopics(roadmapId, topicList) {
+        topicList.replaceChildren();
+
+        const loadingItem = document.createElement('li');
+        loadingItem.textContent = 'در حال بارگذاری تاپیک‌ها...';
+        topicList.appendChild(loadingItem);
+
+        try {
+            const response = await fetch(
+                `/api/v1/roadmaps/${roadmapId}/topics`
+            );
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'تاپیک‌ها دریافت نشدند'
+                ));
+            }
+
+            const topics = await response.json();
+            topicList.replaceChildren();
+
+            if (topics.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.textContent =
+                    'هیچ تاپیکی برای این دوره ثبت نشده است.';
+                topicList.appendChild(emptyItem);
+                return;
+            }
+
+            const canViewContent =
+                currentUserRole === 'ADMIN' ||
+                myEnrolledRoadmapIds.has(Number(roadmapId));
+
+            for (const topic of topics) {
+                const item = document.createElement('li');
+                item.className = 'topic-item';
+
+                const info = document.createElement('span');
+                const title = document.createElement('strong');
+
+                title.textContent =
+                    `${topic.orderNumber}. ${topic.title}`;
+
+                const meta = document.createElement('span');
+                meta.className = 'topic-meta';
+                meta.textContent =
+                    ` (${topic.duration} دقیقه)`;
+
+                info.append(title, meta);
+
+                const actions = document.createElement('div');
+                actions.className = 'topic-actions';
+
+                if (canViewContent) {
+                    actions.appendChild(makeButton(
+                        'مشاهده محتوا',
+                        'btn-success',
+                        () => alert(
+                            `مشاهده محتوای تاپیک: ${topic.title}`
+                        )
+                    ));
+                } else {
+                    const lockButton = makeButton(
+                        '🔒 قفل',
+                        'btn-secondary',
+                        () => {}
+                    );
+                    lockButton.disabled = true;
+                    actions.appendChild(lockButton);
+                }
+
+                if (currentUserRole === 'ADMIN') {
+                    actions.append(
+                        makeButton(
+                            'ویرایش',
+                            'btn-warning',
+                            () => editTopic(roadmapId, topic)
+                        ),
+                        makeButton(
+                            'حذف',
+                            'btn-danger',
+                            () => deleteTopic(
+                                roadmapId, topic.id, topicList
+                            )
+                        )
+                    );
+                }
+
+                item.append(info, actions);
+                topicList.appendChild(item);
+            }
+        } catch (error) {
+            topicList.replaceChildren();
+            showAlert(error.message);
+        }
+    }
+
+    function createTopicForm(roadmapId, topicList) {
+        const form = document.createElement('form');
+        form.className = 'topic-form';
+        form.id = `topic-form-${roadmapId}`;
+
+        const editingId = document.createElement('input');
+        editingId.type = 'hidden';
+
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.placeholder = 'عنوان تاپیک';
+        titleInput.required = true;
+
+        const orderInput = document.createElement('input');
+        orderInput.type = 'number';
+        orderInput.min = '1';
+        orderInput.placeholder = 'شماره ترتیب';
+        orderInput.required = true;
+
+        const durationInput = document.createElement('input');
+        durationInput.type = 'number';
+        durationInput.min = '1';
+        durationInput.placeholder = 'مدت (دقیقه)';
+        durationInput.required = true;
+
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.className = 'btn-success';
+        submitButton.textContent = 'افزودن تاپیک';
+
+        const cancelButton = makeButton(
+            'انصراف',
+            'btn-secondary',
+            resetTopicForm
+        );
+        cancelButton.classList.add('hidden');
+
+        function resetTopicForm() {
+            form.reset();
+            editingId.value = '';
+            submitButton.textContent = 'افزودن تاپیک';
+            cancelButton.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const id = editingId.value;
+            const payload = {
+                title: titleInput.value.trim(),
+                orderNumber: Number(orderInput.value),
+                duration: Number(durationInput.value)
+            };
+
+            try {
+                const response = await fetch(
+                    id
+                        ? `/api/v1/topics/${id}`
+                        : `/api/v1/roadmaps/${roadmapId}/topics`,
+                    {
+                        method: id ? 'PUT' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(await readError(
+                        response,
+                        'ذخیره تاپیک انجام نشد'
+                    ));
+                }
+
+                resetTopicForm();
+                showAlert('تاپیک با موفقیت ذخیره شد.', 'success');
+                await loadTopics(roadmapId, topicList);
+            } catch (error) {
+                showAlert(error.message);
+            }
+        });
+
+        form.append(
+            editingId,
+            titleInput,
+            orderInput,
+            durationInput,
+            submitButton,
+            cancelButton
+        );
+
+        // هنگام کلیک روی «ویرایش» از همین تابع استفاده می‌شود.
+        form.startEditing = topic => {
+            editingId.value = topic.id;
+            titleInput.value = topic.title || '';
+            orderInput.value = topic.orderNumber;
+            durationInput.value = topic.duration;
+            submitButton.textContent = 'ذخیره تغییرات تاپیک';
+            cancelButton.classList.remove('hidden');
+            titleInput.focus();
+        };
+
+        return form;
+    }
+
+    function editTopic(roadmapId, topic) {
+        const form = document.getElementById(
+            `topic-form-${roadmapId}`
+        );
+
+        if (form) form.startEditing(topic);
+    }
+
+    async function deleteTopic(
+        roadmapId, topicId, topicList
+    ) {
+        if (!confirm('این تاپیک حذف شود؟')) return;
+
+        try {
+            const response = await fetch(
+                `/api/v1/topics/${topicId}`,
+                { method: 'DELETE' }
+            );
+
+            if (!response.ok) {
+                throw new Error(await readError(
+                    response,
+                    'حذف تاپیک انجام نشد'
+                ));
+            }
+
+            showAlert('تاپیک حذف شد.', 'success');
+            await loadTopics(roadmapId, topicList);
+        } catch (error) {
+            showAlert(error.message);
+        }
+    }
+
+    function logout() {
+        window.location.href = '/logout';
     }
 </script>
-
 </body>
 </html>
